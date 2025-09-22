@@ -2,6 +2,7 @@ import { OrbitControls } from "@react-three/drei";
 import { Canvas } from "@react-three/fiber";
 import { Physics, RigidBody, CuboidCollider } from "@react-three/rapier";
 import { Suspense } from "react";
+import HondaAce from "./models/honda-ace";
 
 function App() {
   return (
@@ -20,7 +21,7 @@ function App() {
           />
 
           {/* Physics world */}
-          <Physics debug gravity={[0, -9.81, 0]}>
+          <Physics gravity={[0, -9.81, 0]}>
             {/* Ground: visual plane + fixed collider */}
             <RigidBody type="fixed" colliders={false}>
               <mesh rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
@@ -30,12 +31,9 @@ function App() {
               <CuboidCollider args={[100, 0.1, 100]} />
             </RigidBody>
 
-            {/* Square on top (dynamic box) */}
-            <RigidBody position={[0, 2, 0]} colliders="cuboid">
-              <mesh castShadow>
-                <boxGeometry args={[1, 1, 1]} />
-                <meshStandardMaterial color="tomato" />
-              </mesh>
+            {/* GLTF model instead of cube */}
+            <RigidBody position={[0, 3, 0]} colliders="trimesh">
+              <HondaAce />
             </RigidBody>
           </Physics>
 
