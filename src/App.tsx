@@ -40,10 +40,8 @@ function App() {
                 <CuboidCollider args={[100, 0.1, 100]} />
               </RigidBody>
 
-              {/* GLTF model instead of cube */}
-              <RigidBody position={[0, 3, 0]} colliders="trimesh">
-                <HondaAce />
-              </RigidBody>
+              {/* GLTF model with proper physics */}
+              <HondaAce />
             </Physics>
 
             {/* Debug camera control (temporary) */}
