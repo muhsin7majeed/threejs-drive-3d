@@ -21,21 +21,49 @@ const HondaAce = forwardRef<RapierRigidBody>((_props, ref) => {
   const wheelRRRef = useRef<Object3D | null>(null);
 
   // Vehicle physics constants
-  const CAR_CONFIG = {
-    engineForce: 140,
-    brakeForce: 100,
+  interface CarConfig {
+    engineForce: number;
+    brakeForce: number;
+    maxSpeed: number;
+    maxSteerDegrees: number;
+    steerLerpSpeed: number;
+    lateralFriction: number;
+    wheelRadius: number;
+    wheelbase: number;
+    linearDamping: number;
+    angularDamping: number;
+    yawRateLerpSpeed: number;
+    coastingDamping: number;
+    minimumSpeed: number;
+  }
+
+  const CAR_CONFIG: CarConfig = {
+    // Forward acceleration magnitude applied while pressing accelerate
+    engineForce: 100,
+    // Reverse/brake magnitude applied while pressing brake
+    brakeForce: 80,
+    // Maximum horizontal speed (m/s) on the XZ plane
     maxSpeed: 28,
+    // Maximum steering angle for front wheels, in degrees
     maxSteerDegrees: 30,
-    steerLerpSpeed: 7,
+    // How quickly steering input interpolates to the target angle
+    steerLerpSpeed: 9,
+    // Strength to cancel lateral (sideways) velocity each frame (grip)
     lateralFriction: 8,
+    // Visual wheel radius, used to compute spin speed
     wheelRadius: 0.18,
+    // Distance between front and rear axle, affects turning radius
     wheelbase: 2.6,
-    linearDamping: 0.8, // Even lower for better momentum
+    // Linear damping applied by the physics body (air/rolling resistance)
+    linearDamping: 0.8,
+    // Angular damping to stabilize rotation around Y
     angularDamping: 3.0,
+    // How quickly yaw rate blends toward the bicycle-model target
     yawRateLerpSpeed: 8,
-    // New momentum parameters
-    coastingDamping: 0.3, // Natural slowdown when not accelerating
-    minimumSpeed: 0.1, // Below this speed, apply extra damping to stop completely
+    // Drag applied when coasting (no throttle), creates natural slowdown
+    coastingDamping: 0.3,
+    // Below this horizontal speed, apply extra damping to come to a stop
+    minimumSpeed: 0.1,
   };
 
   const maxSteerRadians = THREE.MathUtils.degToRad(CAR_CONFIG.maxSteerDegrees);

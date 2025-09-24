@@ -4,14 +4,21 @@ import * as THREE from "three";
 import type { RapierRigidBody } from "@react-three/rapier";
 
 interface ChaseCameraProps {
+  // Physics body of the car to follow
   target: React.RefObject<RapierRigidBody | null>;
+  // Base follow distance behind the car at rest
   distance?: number;
+  // Vertical offset above the car
   height?: number;
+  // Base interpolation speed for camera position/target
   smoothness?: number;
+  // Look target lead based on velocity (meters per m/s), reduces tunnel vision when moving fast
   lookAhead?: number;
+  // Horizontal mouse look sensitivity (radians per pixel)
   mouseSensitivity?: number;
-  // Extra follow smoothing when moving fast to reduce trailing distance
+  // Multiplier per m/s added to smoothing, to catch up faster at speed
   speedFollowBoost?: number;
+  // Maximum overall smoothing multiplier cap
   maxFollowBoost?: number;
 }
 

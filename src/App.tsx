@@ -31,7 +31,7 @@ function App() {
             />
 
             {/* Physics world */}
-            <Physics gravity={[0, -9.81, 0]} debug>
+            <Physics gravity={[0, -9.81, 0]}>
               <Ground />
 
               {/* City grid: roads and buildings */}
