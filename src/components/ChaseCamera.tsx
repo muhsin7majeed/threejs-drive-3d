@@ -10,6 +10,9 @@ interface ChaseCameraProps {
   smoothness?: number;
   lookAhead?: number;
   mouseSensitivity?: number;
+  // Extra follow smoothing when moving fast to reduce trailing distance
+  speedFollowBoost?: number;
+  maxFollowBoost?: number;
 }
 
 export const ChaseCamera = ({
@@ -19,6 +22,8 @@ export const ChaseCamera = ({
   smoothness = 1.5,
   lookAhead = 0,
   mouseSensitivity = 0.002,
+  speedFollowBoost = 0.15,
+  maxFollowBoost = 4.5,
 }: ChaseCameraProps) => {
   const { camera, gl } = useThree();
 
@@ -117,8 +122,9 @@ export const ChaseCamera = ({
       .add(tempCarPos.current)
       .add(new THREE.Vector3(0, 1, 0)); // Slightly above car center
 
-    // Smooth camera movement using lerp
-    const lerpFactor = Math.min(1, smoothness * delta);
+    // Smooth camera movement using lerp, boost follow rate with speed to reduce lag
+    const followBoost = Math.min(1 + speed * speedFollowBoost, maxFollowBoost);
+    const lerpFactor = Math.min(1, smoothness * followBoost * delta);
 
     cameraPosition.current.lerp(tempCameraOffset.current, lerpFactor);
     cameraTarget.current.lerp(tempLookAtTarget.current, lerpFactor);
