@@ -3,7 +3,7 @@ import { GLTFLoader } from "three/examples/jsm/Addons.js";
 import { useEffect, useRef, forwardRef } from "react";
 import type { Object3D } from "three";
 import { useKeyboardControls } from "@react-three/drei";
-import { RigidBody, CuboidCollider } from "@react-three/rapier";
+import { RigidBody, CuboidCollider, BallCollider } from "@react-three/rapier";
 import type { RapierRigidBody } from "@react-three/rapier";
 import * as THREE from "three";
 
@@ -28,7 +28,7 @@ const HondaAce = forwardRef<RapierRigidBody>((_props, ref) => {
     maxSteerDegrees: 30,
     steerLerpSpeed: 7,
     lateralFriction: 8,
-    wheelRadius: 0.33,
+    wheelRadius: 0.18,
     wheelbase: 2.6,
     linearDamping: 0.8, // Even lower for better momentum
     angularDamping: 3.0,
@@ -39,6 +39,7 @@ const HondaAce = forwardRef<RapierRigidBody>((_props, ref) => {
   };
 
   const maxSteerRadians = THREE.MathUtils.degToRad(CAR_CONFIG.maxSteerDegrees);
+  const VISUAL_OFFSET_Y = -0.7;
 
   // Steering and wheel spin state
   const steerAngleRef = useRef(0);
@@ -226,15 +227,17 @@ const HondaAce = forwardRef<RapierRigidBody>((_props, ref) => {
       angularDamping={CAR_CONFIG.angularDamping}
       enabledRotations={[false, true, false]}
     >
-      {/* Car chassis collider - approximate car body, positioned lower for stability */}
-      <CuboidCollider args={[1, 0.5, 2]} position={[0, -0.3, 0]} />
-      {/* Wheel colliders for ground contact */}
-      <CuboidCollider args={[0.3, 0.3, 0.15]} position={[-0.7, -0.5, 1.2]} friction={1.5} /> {/* Front Left */}
-      <CuboidCollider args={[0.3, 0.3, 0.15]} position={[0.7, -0.5, 1.2]} friction={1.5} /> {/* Front Right */}
-      <CuboidCollider args={[0.3, 0.3, 0.15]} position={[-0.7, -0.5, -1.2]} friction={1.5} /> {/* Rear Left */}
-      <CuboidCollider args={[0.3, 0.3, 0.15]} position={[0.7, -0.5, -1.2]} friction={1.5} /> {/* Rear Right */}
-      {/* The visual GLTF model */}
-      <primitive object={gltf.scene} />
+      {/* Car chassis collider - kept inside body to avoid ground contact */}
+      <CuboidCollider args={[0.9, 0.25, 1.8]} position={[0, -0.2, 0]} friction={0.6} />
+      {/* Wheel colliders (spherical) for contact without visual lift */}
+      <BallCollider args={[0.18]} position={[-0.7, -0.52, 1.2]} friction={1.6} /> {/* Front Left */}
+      <BallCollider args={[0.18]} position={[0.7, -0.52, 1.2]} friction={1.6} /> {/* Front Right */}
+      <BallCollider args={[0.18]} position={[-0.7, -0.52, -1.2]} friction={1.6} /> {/* Rear Left */}
+      <BallCollider args={[0.18]} position={[0.7, -0.52, -1.2]} friction={1.6} /> {/* Rear Right */}
+      {/* The visual GLTF model (lowered slightly to meet ground visually) */}
+      <group position={[0, VISUAL_OFFSET_Y, 0]}>
+        <primitive object={gltf.scene} />
+      </group>
     </RigidBody>
   );
 });

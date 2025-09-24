@@ -1,9 +1,9 @@
-import { KeyboardControls } from "@react-three/drei";
+import { KeyboardControls, OrbitControls } from "@react-three/drei";
 import { Canvas } from "@react-three/fiber";
 import { Physics, RigidBody, CuboidCollider } from "@react-three/rapier";
 import { Suspense, useRef } from "react";
 import HondaAce from "./models/honda-ace";
-import ChaseCamera from "./components/ChaseCamera";
+// import ChaseCamera from "./components/ChaseCamera";
 import type { RapierRigidBody } from "@react-three/rapier";
 
 // Define the control map
@@ -34,14 +34,16 @@ function App() {
             />
 
             {/* Physics world */}
-            <Physics gravity={[0, -9.81, 0]}>
-              {/* Ground: visual plane + fixed collider */}
+            <Physics gravity={[0, -9.81, 0]} debug>
+              {/* Ground: thick box so height is visually clear */}
               <RigidBody type="fixed" colliders={false}>
-                <mesh rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
-                  <planeGeometry args={[200, 200]} />
+                {/* Box height 2, positioned so top sits at y=0 */}
+                <mesh position={[0, -1, 0]} receiveShadow castShadow>
+                  <boxGeometry args={[200, 2, 200]} />
                   <meshStandardMaterial color="#7a8a99" />
                 </mesh>
-                <CuboidCollider args={[100, 0.1, 100]} />
+                {/* Collider half-extents must match box: 100, 1, 100 at same center */}
+                <CuboidCollider args={[100, 1, 100]} position={[0, -1, 0]} />
               </RigidBody>
 
               {/* GLTF model with proper physics */}
@@ -49,7 +51,8 @@ function App() {
             </Physics>
 
             {/* Chase camera that follows the car */}
-            <ChaseCamera target={carRef} />
+            {/* <ChaseCamera target={carRef} /> */}
+            <OrbitControls />
           </Suspense>
         </Canvas>
       </KeyboardControls>
