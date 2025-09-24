@@ -1,0 +1,33 @@
+---
+alwaysApply: true
+description: High-level gameplay and physics requirements for the arcade driving sandbox
+---
+
+## Driving Sandbox Requirements
+
+Source of truth: [requirements.md](mdc:requirements.md)
+
+- **Goal**: Build an arcade-style driving sandbox with smooth, responsive feel.
+- **Core gameplay**:
+  - Physics-driven car (collisions, friction, gravity)
+  - Rear-wheel torque for acceleration
+  - Front-wheel steering; all wheels spin with speed
+  - Smooth chase camera
+- **Tech stack**: React Three Fiber, @react-three/rapier, GLTF car (separate wheels), keyboard input (WASD/Arrows).
+
+### Milestones
+- **MVP**: Ground plane, lighting/skybox, car model, rigidbody + colliders, rear-wheel torque, front-wheel steer (Y), wheel spin (X), basic inputs, chase cam.
+- **Polish**: Linear/angular damping, speed-sensitive steering, friction/drift factor, center of mass tweak, simple props, particles (dust/skids).
+- **Stretch**: Terrain/road, AI/multiple cars, audio, UI speedometer, flip-reset, checkpoints/laps.
+
+### Key Guidelines (Arcade feel)
+- Prefer impulses/torque over manual transforms.
+- Cap max velocity and clamp sideways velocity for grip.
+- Lower center of mass for stability; add damping.
+- Separate wheel groups for spin (X) vs steer (Y).
+
+### Useful search terms
+- `@react-three/rapier rigidbody`, `applyTorqueImpulse`, `raycast vehicle physics`
+- `ackermann steering geometry`, `react-three-fiber chase camera`
+- `rapier linear damping angular damping`, `car drift physics`
+

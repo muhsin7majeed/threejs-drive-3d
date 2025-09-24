@@ -1,0 +1,35 @@
+---
+alwaysApply: true
+description: Project tooling, scripts, and dependency baseline for drive-3d
+---
+
+## Project Setup and Tooling
+
+Canonical reference: [package.json](mdc:package.json)
+
+### Scripts
+
+-   `dev`: Vite dev server
+-   `build`: TypeScript build (project refs) then Vite build
+-   `lint`: ESLint across repo
+-   `preview`: Vite preview
+
+### Runtime dependencies
+
+-   React 19 + ReactDOM 19
+-   three + @types/three
+-   @react-three/fiber, @react-three/drei, @react-three/rapier
+-   State/UI helpers: jotai, leva
+
+### Dev dependencies
+
+-   Vite 7 + @vitejs/plugin-react
+-   TypeScript ~5.8
+-   ESLint 9 + react-refresh + react-hooks
+-   types for React / ReactDOM
+
+### Conventions
+
+-   Use TypeScript with module type.
+-   Keep versions in sync with `package.json`.
+-   Rendering via R3F; physics via Rapier; models via GLTF.
