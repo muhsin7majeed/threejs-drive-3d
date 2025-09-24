@@ -8,7 +8,7 @@ import type { RapierRigidBody } from "@react-three/rapier";
 import * as THREE from "three";
 
 const HondaAce = forwardRef<RapierRigidBody>((_props, ref) => {
-  const url = new URL("../assets/models/honda-ace/scene.gltf", import.meta.url).href;
+  const url = new URL("/assets/models/honda-ace/scene.gltf", import.meta.url).href;
   const gltf = useLoader(GLTFLoader, url);
 
   // Physics refs - use forwarded ref or create internal ref
