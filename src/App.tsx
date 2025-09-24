@@ -1,8 +1,10 @@
-import { OrbitControls, KeyboardControls } from "@react-three/drei";
+import { KeyboardControls } from "@react-three/drei";
 import { Canvas } from "@react-three/fiber";
 import { Physics, RigidBody, CuboidCollider } from "@react-three/rapier";
-import { Suspense } from "react";
+import { Suspense, useRef } from "react";
 import HondaAce from "./models/honda-ace";
+import ChaseCamera from "./components/ChaseCamera";
+import type { RapierRigidBody } from "@react-three/rapier";
 
 // Define the control map
 const controlsMap = [
@@ -13,6 +15,8 @@ const controlsMap = [
 ];
 
 function App() {
+  const carRef = useRef<RapierRigidBody>(null);
+
   return (
     <>
       <KeyboardControls map={controlsMap}>
@@ -41,11 +45,11 @@ function App() {
               </RigidBody>
 
               {/* GLTF model with proper physics */}
-              <HondaAce />
+              <HondaAce ref={carRef} />
             </Physics>
 
-            {/* Debug camera control (temporary) */}
-            <OrbitControls enablePan={false} />
+            {/* Chase camera that follows the car */}
+            <ChaseCamera target={carRef} />
           </Suspense>
         </Canvas>
       </KeyboardControls>

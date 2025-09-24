@@ -1,18 +1,18 @@
 import { useFrame, useLoader } from "@react-three/fiber";
 import { GLTFLoader } from "three/examples/jsm/Addons.js";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, forwardRef } from "react";
 import type { Object3D } from "three";
 import { useKeyboardControls } from "@react-three/drei";
 import { RigidBody, CuboidCollider } from "@react-three/rapier";
 import type { RapierRigidBody } from "@react-three/rapier";
 import * as THREE from "three";
 
-const HondaAce = () => {
+const HondaAce = forwardRef<RapierRigidBody>((_props, ref) => {
   const url = new URL("../assets/models/honda-ace/scene.gltf", import.meta.url).href;
   const gltf = useLoader(GLTFLoader, url);
 
-  // Physics refs
-  const carBodyRef = useRef<RapierRigidBody>(null);
+  // Physics refs - use forwarded ref or create internal ref
+  const internalRef = useRef<RapierRigidBody>(null);
 
   // Refs to wheel objects in the GLTF scene
   const wheelFLRef = useRef<Object3D | null>(null);
@@ -65,9 +65,9 @@ const HondaAce = () => {
   const [, getKeys] = useKeyboardControls();
 
   // Ground detection function - simplified approach
-  const isGrounded = () => {
-    if (!carBodyRef.current) return false;
-    const t = carBodyRef.current.translation();
+  const isGrounded = (rigidBody: RapierRigidBody) => {
+    if (!rigidBody) return false;
+    const t = rigidBody.translation();
     // Simple ground check: if car is close to ground level (y=0), assume grounded
     return t.y < 4; // Adjust this threshold based on your car's height
   };
@@ -91,14 +91,15 @@ const HondaAce = () => {
 
   // Per-frame physics and animation update
   useFrame((_, delta) => {
-    if (!carBodyRef.current) return;
+    const rigidBody = (ref as React.RefObject<RapierRigidBody>)?.current || internalRef.current;
+    if (!rigidBody) return;
 
     // Read velocity and limit speed on XZ plane
-    const vel = carBodyRef.current.linvel();
+    const vel = rigidBody.linvel();
     const horizontalSpeed = Math.hypot(vel.x, vel.z);
 
     // Get orientation vectors
-    const r = carBodyRef.current.rotation();
+    const r = rigidBody.rotation();
     tempQuat.current.set(r.x, r.y, r.z, r.w);
 
     // Use +Z as model-forward (adjust if your model faces different direction)
@@ -111,7 +112,7 @@ const HondaAce = () => {
     if (tempRight.current.lengthSq() > 0.0001) tempRight.current.normalize();
 
     const { left, right, forward, backward } = getKeys();
-    const grounded = isGrounded();
+    const grounded = isGrounded(rigidBody);
 
     // Lateral friction: cancel sideways velocity when on ground
     if (grounded) {
@@ -119,7 +120,7 @@ const HondaAce = () => {
       const lateralSpeed = tempVel.current.dot(tempRight.current);
       const lateralCancel = -lateralSpeed;
       tempImpulse.current.copy(tempRight.current).multiplyScalar(lateralCancel * CAR_CONFIG.lateralFriction * delta);
-      carBodyRef.current.applyImpulse({ x: tempImpulse.current.x, y: 0, z: tempImpulse.current.z }, true);
+      rigidBody.applyImpulse({ x: tempImpulse.current.x, y: 0, z: tempImpulse.current.z }, true);
     }
 
     // Propulsion as rear-wheel drive: apply along forward when grounded
@@ -128,7 +129,7 @@ const HondaAce = () => {
       tempImpulse.current
         .copy(tempForward.current)
         .multiplyScalar((moveInput > 0 ? CAR_CONFIG.engineForce : -CAR_CONFIG.brakeForce) * delta);
-      carBodyRef.current.applyImpulse({ x: tempImpulse.current.x, y: 0, z: tempImpulse.current.z }, true);
+      rigidBody.applyImpulse({ x: tempImpulse.current.x, y: 0, z: tempImpulse.current.z }, true);
     }
 
     // Natural momentum and coasting behavior
@@ -141,7 +142,7 @@ const HondaAce = () => {
       const dampingMultiplier = horizontalSpeed < CAR_CONFIG.minimumSpeed ? 5.0 : 1.0;
 
       tempImpulse.current.copy(tempVel.current).multiplyScalar(-coastingForce * dampingMultiplier);
-      carBodyRef.current.applyImpulse({ x: tempImpulse.current.x, y: 0, z: tempImpulse.current.z }, true);
+      rigidBody.applyImpulse({ x: tempImpulse.current.x, y: 0, z: tempImpulse.current.z }, true);
     }
 
     // Steering angle target from input
@@ -155,14 +156,14 @@ const HondaAce = () => {
       const forwardSpeed = tempVel.current.dot(tempForward.current);
       const curvature = Math.tan(steerAngleRef.current) / Math.max(0.1, CAR_CONFIG.wheelbase);
       const targetYawRate = THREE.MathUtils.clamp(forwardSpeed * curvature, -5, 5);
-      const ang = carBodyRef.current.angvel();
+      const ang = rigidBody.angvel();
       const currentYaw = ang ? ang.y ?? 0 : 0;
       const blendedYaw = THREE.MathUtils.lerp(
         currentYaw,
         targetYawRate,
         Math.min(1, CAR_CONFIG.yawRateLerpSpeed * delta)
       );
-      carBodyRef.current.setAngvel({ x: 0, y: blendedYaw, z: 0 }, true);
+      rigidBody.setAngvel({ x: 0, y: blendedYaw, z: 0 }, true);
     }
 
     // Visual wheel rotation - only update when moving
@@ -218,7 +219,7 @@ const HondaAce = () => {
 
   return (
     <RigidBody
-      ref={carBodyRef}
+      ref={ref}
       position={[0, 3, 0]}
       colliders={false}
       linearDamping={CAR_CONFIG.linearDamping}
@@ -236,6 +237,8 @@ const HondaAce = () => {
       <primitive object={gltf.scene} />
     </RigidBody>
   );
-};
+});
+
+HondaAce.displayName = "HondaAce";
 
 export default HondaAce;
