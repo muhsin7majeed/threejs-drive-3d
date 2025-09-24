@@ -15,8 +15,8 @@ interface ChaseCameraProps {
 export const ChaseCamera = ({
   target,
   distance = 8,
-  height = 4,
-  smoothness = 2.5,
+  height = 3,
+  smoothness = 1.5,
   lookAhead = 0,
   mouseSensitivity = 0.002,
 }: ChaseCameraProps) => {
