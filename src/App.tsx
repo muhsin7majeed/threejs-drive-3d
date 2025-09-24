@@ -1,4 +1,4 @@
-import { KeyboardControls } from "@react-three/drei";
+import { Html, KeyboardControls } from "@react-three/drei";
 import { Canvas } from "@react-three/fiber";
 import { Physics } from "@react-three/rapier";
 import { Suspense, useRef } from "react";
@@ -18,7 +18,13 @@ function App() {
     <>
       <KeyboardControls map={[...controlsMap]}>
         <Canvas shadows camera={{ position: [0, 8, 20], fov: 50 }} style={{ height: "100vh", width: "100vw" }}>
-          <Suspense>
+          <Suspense
+            fallback={
+              <Html center style={{ display: "flex", justifyContent: "center", alignItems: "center", height: "100vh" }}>
+                <span>Loading...</span>
+              </Html>
+            }
+          >
             {/* Lights */}
             <hemisphereLight intensity={0.6} groundColor={0x223344} />
 

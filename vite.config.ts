@@ -5,11 +5,11 @@ import react from "@vitejs/plugin-react";
 export default defineConfig({
   plugins: [react()],
   // Rapier uses a WASM module; exclude it from pre-bundling and ensure WASM is treated as an asset
-  optimizeDeps: {
-    exclude: ["@dimforge/rapier3d-compat"],
-  },
-  assetsInclude: ["**/*.wasm"],
-  build: {
-    target: "esnext",
-  },
+  // optimizeDeps: {
+  //   exclude: ["@dimforge/rapier3d-compat"],
+  // },
+  // assetsInclude: ["**/*.wasm"],
+  // build: {
+  //   target: "esnext",
+  // },
 });
